@@ -1,0 +1,135 @@
+%Nomes: Fernanda de Camargo Magano NUSP: 8536044
+%		Eduardo Delgado Coloma Bier      8536148
+
+%ProgLin EP2
+%Octave começa com índices a partir de 1
+
+function ret = simplex(A,b,c,m,n,x)
+	
+	j = 1;
+	k = 1;
+	for i = 1:n
+		if (x > 0)
+			basics[j++] = i;
+		else
+			nonbasics[k++] = i;
+		endif
+	endfor
+	
+	j--;
+	k--;
+	
+	%Nesse passo estou invertendo B e usando para calcular o vetor das direções viáveis
+	invB = inv(B);
+
+	while (true)
+		
+		len_b = length(basics);
+
+		for i = 1:n
+			for k = 1:len_b
+				dB(k) = - invB(i, k) * A(k,j);
+			endfor
+		endfor
+
+
+		%Checo as variáveis j que não estão na base
+		%Se todas são não-negativas, a solução viável básica atual é ótima e o algoritmo pára.	
+		%Caso contrário escolho um j cujo custo cj < 0
+
+		cont = 0;
+		for j = 1:length(nonbasics)
+			aux = 0;
+			for i = 1:len_b
+				aux += c(basics(i)) * dB(i);
+			endfor
+			cReduced(j) = c(j) - aux;
+			if (cReduced(j) >= 0)
+				cont++;
+			else
+				dir = j;  %direção j será a direção básica
+			endif
+		endfor
+
+		if (cont == len_b)
+			%algoritmo pára
+			printf("Solução ótima foi encontrada!\n");
+			Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...);
+			result(0) = 0;
+			result(1) = x;
+			ret = result;
+
+
+	    u = (-1) * dB;
+		for i = 1:len_b
+			if(u(i) > 0)
+				break;
+		
+		if (i == len_b) %significa que nenhum índice é positivo		
+			theta_star = inf;
+			printf("O custo é -infinito\n");
+			result(0) = -1;
+			result(1) = j;
+			ret = result;
+		endif
+
+		%Encontrando theta estrela e a posição l
+		%Separar esse trecho de código e fazer uma função
+		min = inf;
+		l = 0;
+		for i = 1:len_b
+			if (u(i) > 0)
+				tmp = x(basics(i)) / u(i);
+				if (min > tmp)
+					min = tmp;
+					l = i; 
+				endif
+			endif
+		endfor
+
+		theta_star = min;
+
+		%Assim, fazemos uma troca: a coluna Al é substituída por Aj 
+		for i = 1:n
+			B(i,l) = A(i,j);
+		endfor
+		basics(l) = j;
+
+		Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...);
+	endwhile
+
+endfunction
+
+
+function Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...)
+	
+	printf("Índices e varíáveis básicas");
+	for i = 1:basics
+		i, x(i)
+
+	printf("custos reduzidos:\n");
+	for i = 1:nonbasics
+		i, cReduced(i)
+	
+
+	printf("Entra na base: %d\n", l);
+
+	printf("Direção:\n");
+		%Fazer
+
+	printf("Theta*: %f\n", theta_star);
+	printf("Sai da base: %d\n", j);	
+	
+
+	%Imprimir os índices das variáveis que estavam na base e os respectivos valores das componentes do vetor de direção;
+
+	%No caso em que x dado inicialmente é ótimo, tenho que imprimir informações simplificadas (theta estrela não existirá, por exemplo)
+
+endfunction
+
+
+#######################################################################################################
+
+%Similiar ao main
+
+%Nessa parte pedir para o usuário entrar com x, A, b, c, m, n ou arrumar um jeito de ler de um arquivo
