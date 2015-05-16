@@ -1,0 +1,36 @@
+function retval = updateB(B, u, m, l)
+	for i = 1:m
+		if (i != l)
+			for j = 1:m
+				B(i, j) -= B(l, j) * u(i) / u(l);
+			endfor
+		endif
+	endfor
+
+	for j = 1:m
+		B(l, j) = B(l, j) / u(l);
+	endfor
+	retval = B
+endfunction
+
+function retval = updateB2(B, u, m, l)
+
+	for i = 1:m
+		for j = 1:m
+			if (i != l)
+				B(i, j) -= B(l, j) * u(i)/u(l);
+			endif				
+		endfor
+	endfor
+
+	B(l, l) = B(l, l) / u(l);
+	retval = B
+endfunction
+
+B = [1 2 3; -2 3 1; 4 -3 -2]
+u = [-4 2 2]
+l = 3
+m = 3
+
+updateB(B, u, m, l)
+updateB2(B, u, m, l)

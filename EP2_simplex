@@ -4,6 +4,39 @@
 %ProgLin EP2
 %Octave começa com índices a partir de 1
 
+function retval = updateB(B, u, m, l)
+
+	for i = 1:m
+		if (i != l)
+			for j = 1:m
+				B(i, j) -= B(l, j) * u(i) / u(l);
+			endfor
+		endif
+	endfor
+
+	for j = 1:m
+		B(l, j) = B(l, j) / u(l);
+	endfor
+	retval = B;
+endfunction
+
+function [retval] = findTheta(x, u, basics, len_b)
+
+	min = inf;
+		l = 0;
+		for i = 1:len_b
+			if (u(i) > 0)
+				tmp = x(basics(i)) / u(i);
+				if (min > tmp)
+					min = tmp;
+					l = i; 
+				endif
+			endif
+		endfor
+
+		theta_star = min
+endfunction
+
 function [ind v] = simplex(A,b,c,m,n,x)
 	
 	j = 1;
@@ -40,7 +73,7 @@ function [ind v] = simplex(A,b,c,m,n,x)
 	found = 0;
 	dir = 1;
 
-	while (true)
+	while (!found)
 
 	iteracao += 1;
 	printf("Iterando: %d\n\n", iteracao);
@@ -51,7 +84,7 @@ function [ind v] = simplex(A,b,c,m,n,x)
 				pT(j) += c(basics(k)) * inverseB(k, j);
 			endfor
 		endfor
-		
+
 		pT
 		%Checo as variáveis j que não estão na base
 		%Se todas são não-negativas, a solução viável básica atual é ótima e o algoritmo pára.	
@@ -78,7 +111,7 @@ function [ind v] = simplex(A,b,c,m,n,x)
 			%algoritmo pára
 			printf("Solução ótima foi encontrada!\n");
 			printf("\n");
-			%found = 1;
+			found = 1;
 			%Função objetivo
 			objetivo = 0;
 			for i = 1:n
@@ -126,7 +159,8 @@ function [ind v] = simplex(A,b,c,m,n,x)
 				tmp = x(basics(i)) / u(i);
 				if (min > tmp)
 					min = tmp;
-					l = i; 
+					ind_l = i;
+					l = basics(i); 
 				endif
 			endif
 		endfor
@@ -137,26 +171,17 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		for i = 1:len_b
 			B(i,l) = A(i,dir);
 		endfor
-		basics(l) = dir;
 
-		basics
 		%O vetor x é atualizado
 		for i = 1:len_b
 			x(basics(i)) = x(basics(i)) - theta_star * u(i); 
 		endfor
-		x
+		x(dir) = theta_star;
+		basics(ind_l) = dir;
 
 		len_b
-		for i = 1:len_b
-			for j = 1:len_b
-				if i != l
-					inverseB(i, j) += inverseB(l, j) * u(i)/u(l);
-				endif				
-			endfor
-		endfor
 
-		inverseB(l, dir) = inverseB(l, dir) / u(l);
-		inverseB
+		inverseB = updateB(inverseB, u, len_b, ind_l)
 
 		%Função objetivo
 		objetivo = 0;
@@ -165,7 +190,7 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		endfor
 
 		%Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, dir);
-
+		x
 		i = j = 1;
 	endwhile
 
@@ -202,12 +227,12 @@ endfunction
 
 %Nessa parte pedir para o usuário entrar com x, A, b, c, m, n ou arrumar um jeito de ler de um arquivo
 %simplex(A,b,c,m,n,x)
-A = [1, 2, 2, 1, 0, 0; 2, 1, 2, 0, 1, 0; 2, 2, 1, 0, 0, 1];
-b = [20, 20, 20];
-x = [0, 0, 0, 20, 20, 20];
-c = [-10, -12, -12, 0, 0, 0];
 
-n = 6;
-m = 3;
+A = input("A = ")
+b = input("b = ")
+x = input("Solução inicial:\n")
+c = input("c = ")
+n = input("n = ")
+m = input("m = ")
 
 [ind, v] = simplex(A,b,c,m,n,x);
