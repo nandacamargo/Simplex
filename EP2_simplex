@@ -116,7 +116,7 @@ function [ind v] = simplex(A,c,m,n,x)
 				objetivo += c(i) * x(i);
 			endfor
 
-			printf("Solução ótima foi encontrada com custo: %f!\n", objetivo);
+			printf("Solução ótima foi encontrada com custo: %.2f\n", objetivo);
 			printf("\n");
 
 			ind = 0;
@@ -153,7 +153,6 @@ function [ind v] = simplex(A,c,m,n,x)
 		%Separar esse trecho de código e fazer uma função
 		[theta_star, l, ind_l] = findTheta(x, u, basics, len_b);
 		
-		dir
 		directions(iteracao,1) = l; 
 		directions(iteracao,2) = -u(ind_l);
 
@@ -178,7 +177,10 @@ function [ind v] = simplex(A,c,m,n,x)
 			objetivo += c(i) * x(i);
 		endfor
 
-		Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, theta_star, l, dir, iteracao);
+		if(!found)
+			Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, theta_star, l, dir, iteracao);
+		endif
+
 		x
 		i = j = 1;, 
 	endwhile
@@ -190,7 +192,7 @@ function Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, 
 	
 	printf("Índices e variáveis básicas:\n");
 	for i = 1:length(basics)
-		printf("%d %f\n", i, x(i));
+		printf("%d %.2f\n", i, x(i));
 	endfor
 
 	printf("\nValor da função objetivo: %.2f\n", objetivo);
@@ -207,7 +209,7 @@ function Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, 
 		printf("%d %.2f\n", directions(i,1), directions(i,2));
 	endfor
 
-	printf("\nTheta*: %f\n", theta_star);
+	printf("\nTheta*: %.2f\n", theta_star);
 	printf("\nSai da base: %d\n", l);	
 
 	%No caso em que x dado inicialmente é ótimo, tenho que imprimir informações simplificadas (theta estrela não existirá, por exemplo)
