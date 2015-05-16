@@ -8,31 +8,51 @@ function [ind v] = simplex(A,b,c,m,n,x)
 	
 	j = 1;
 	k = 1;
+	basics(1) = 1;
+	
 	for i = 1:n
-		if (x > 0)
-			basics(j++) = i;
+		if (x(i) > 0)
+			basics(j) = i;
+			j += 1;
 		else
-			nonbasics(k++) = i;
+			nonbasics(k) = i;
+			k += 1;
 		endif
 	endfor
 	
-	j--;
-	k--;
+	j -= 1;
+	k -=1;
+
+	basics
+	nonbasics
+	len_b = length(basics);
 	
+	%Criação de B
+	for j = 1:len_b
+		for i = 1:m
+			B(i,j) = A(i,basics(j));
+		endfor
+	endfor
+
 	%Nesse passo estou invertendo B 
 	inverseB = inv(B);
+	iteracao = 0;
+	found = 0;
+	dir = 1;
 
 	while (true)
 
-		len_b = length(basics);
-
+	iteracao += 1;
+	printf("Iterando: %d\n\n", iteracao);
 		%Aqui é feito o cálculo de p' = cb' * B⁻¹
 		for j = 1:len_b
-			for k = m
+			pT(j) = 0;
+			for k = 1:len_b
 				pT(j) += c(basics(k)) * inverseB(k, j);
 			endfor
 		endfor
 		
+		pT
 		%Checo as variáveis j que não estão na base
 		%Se todas são não-negativas, a solução viável básica atual é ótima e o algoritmo pára.	
 		%Caso contrário escolho um j cujo custo cj < 0
@@ -46,44 +66,55 @@ function [ind v] = simplex(A,b,c,m,n,x)
 			endfor
 			cReduced(j) = c(j) - aux;
 			if (cReduced(j) >= 0)
-				cont++;
+				cont +=1;
 			elseif(cReduced(j) < min_cost)
 				min_cost = cReduced;  %Isso é feito para pegar o custo reduzido o mais negativo possível
 				dir = j; 			  %direção j será a direção básica
 			endif
 		endfor
 
+		cReduced
 		if (cont == len_b)
 			%algoritmo pára
 			printf("Solução ótima foi encontrada!\n");
+			printf("\n");
+			%found = 1;
 			%Função objetivo
 			objetivo = 0;
 			for i = 1:n
-				objetivo += c[i] * x[i];
+				objetivo += c(i) * x(i);
 			endfor
 
-			Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...);
+			%Falta colocar para imprimir os índicesdas que estavam na base e os valores das comp. do vetor direção
+			%Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, dir);
 			ind = 0;
 			v = x;
-			
+		endif	
 
 		%Calcula-se u = -dB = B⁻¹Aj		
 
-		for i = 1:n
+		for i = 1:len_b
+			u(i) = 0;
 			for k = 1:len_b
-				u(k) = inverseB(i, k) * A(k,j);
+				u(i) += inverseB(i, k) * A(k,dir);
 			endfor
 		endfor
 
+		u
+		cont = 0;
 	    for i = 1:len_b
-			if(u(i) > 0)
-				break;
-		
-		if (i == len_b) %significa que nenhum índice é positivo		
+			if(u(i) <= 0)
+				cont +=1;
+			endif
+		endfor	
+
+
+		if (cont == len_b) %significa que nenhum índice é positivo		
 			theta_star = inf;
 			printf("O custo é -infinito\n");
+			%found = 1;
 			ind = -1;
-			v = j;
+			v = dir;
 		endif
 
 		%Encontrando theta estrela e a posição l
@@ -100,56 +131,60 @@ function [ind v] = simplex(A,b,c,m,n,x)
 			endif
 		endfor
 
-		theta_star = min;
+		theta_star = min
 
 		%Assim, fazemos uma troca: a coluna Al é substituída por Aj 
-		for i = 1:n
-			B(i,l) = A(i,j);
+		for i = 1:len_b
+			B(i,l) = A(i,dir);
 		endfor
-		basics(l) = j;
+		basics(l) = dir;
 
+		basics
 		%O vetor x é atualizado
 		for i = 1:len_b
 			x(basics(i)) = x(basics(i)) - theta_star * u(i); 
+		endfor
+		x
 
-		
-		for i = 1:m
-			for j = 1:n
+		len_b
+		for i = 1:len_b
+			for j = 1:len_b
 				if i != l
 					inverseB(i, j) += inverseB(l, j) * u(i)/u(l);
 				endif				
 			endfor
 		endfor
 
-		inverseB(l, j) = inverseB(l, j) / u(l);
+		inverseB(l, dir) = inverseB(l, dir) / u(l);
+		inverseB
 
 		%Função objetivo
 		objetivo = 0;
 		for i = 1:n
-			objetivo += c[i] * x[i];
+			objetivo += c(i) * x(i);
 		endfor
 
+		%Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, dir);
 
-		Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...);
+		i = j = 1;
 	endwhile
 
 endfunction
 
 
-function Imprime_dados(basics, x, nonbasics, cReduced, theta_star, l, j, ...)
+function Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, j)
 	
 	printf("Índices e varíáveis básicas");
-	for i = 1:basics
-		i, x(i)
-
-	printf("custos reduzidos:\n");
-	for i = 1:nonbasics
-		i, cReduced(i)
+	i, x(i)
 	
+	printf("custos reduzidos:\n");
+	%for i = 1:nonbasics
+		i, cReduced(i)
+	%endfor
 
 	printf("Entra na base: %d\n", l);
 
-	printf("Direção:\n");
+	%printf("Direção:\n");
 		%Fazer
 
 	printf("Theta*: %f\n", theta_star);
@@ -165,7 +200,14 @@ endfunction
 
 #######################################################################################################
 
-%Similiar ao main
-
 %Nessa parte pedir para o usuário entrar com x, A, b, c, m, n ou arrumar um jeito de ler de um arquivo
 %simplex(A,b,c,m,n,x)
+A = [1, 2, 2, 1, 0, 0; 2, 1, 2, 0, 1, 0; 2, 2, 1, 0, 0, 1];
+b = [20, 20, 20];
+x = [0, 0, 0, 20, 20, 20];
+c = [-10, -12, -12, 0, 0, 0];
+
+n = 6;
+m = 3;
+
+[ind, v] = simplex(A,b,c,m,n,x);
