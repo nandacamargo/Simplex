@@ -85,7 +85,6 @@ function [ind v] = simplex(A,b,c,m,n,x)
 			endfor
 		endfor
 
-		pT
 		%Checo as variáveis j que não estão na base
 		%Se todas são não-negativas, a solução viável básica atual é ótima e o algoritmo pára.	
 		%Caso contrário escolho um j cujo custo cj < 0
@@ -109,8 +108,6 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		cReduced
 		if (cont == len_b)
 			%algoritmo pára
-			printf("Solução ótima foi encontrada!\n");
-			printf("\n");
 			found = 1;
 			%Função objetivo
 			objetivo = 0;
@@ -118,8 +115,9 @@ function [ind v] = simplex(A,b,c,m,n,x)
 				objetivo += c(i) * x(i);
 			endfor
 
-			%Falta colocar para imprimir os índicesdas que estavam na base e os valores das comp. do vetor direção
-			%Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, dir);
+			printf("Solução ótima foi encontrada com custo: %f!\n", objetivo);
+			printf("\n");
+
 			ind = 0;
 			v = x;
 		endif	
@@ -143,7 +141,7 @@ function [ind v] = simplex(A,b,c,m,n,x)
 
 
 		if (cont == len_b) %significa que nenhum índice é positivo		
-			theta_star = inf;
+			theta_star = inf
 			printf("O custo é -infinito\n");
 			%found = 1;
 			ind = -1;
@@ -166,6 +164,10 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		endfor
 
 		theta_star = min
+		dir
+		directions(iteracao,1) = l; 
+		directions(iteracao,2) = -u(ind_l);
+
 
 		%Assim, fazemos uma troca: a coluna Al é substituída por Aj 
 		for i = 1:len_b
@@ -179,8 +181,6 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		x(dir) = theta_star;
 		basics(ind_l) = dir;
 
-		len_b
-
 		inverseB = updateB(inverseB, u, len_b, ind_l)
 
 		%Função objetivo
@@ -189,34 +189,37 @@ function [ind v] = simplex(A,b,c,m,n,x)
 			objetivo += c(i) * x(i);
 		endfor
 
-		%Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, dir);
+		Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, theta_star, l, dir, iteracao);
 		x
-		i = j = 1;
+		i = j = 1;, 
 	endwhile
 
 endfunction
 
 
-function Imprime_dados(basics, x, objetivo, nonbasics, cReduced, theta_star, l, j)
+function Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, theta_star, l, dir, iteracao)
 	
-	printf("Índices e varíáveis básicas");
-	i, x(i)
-	
-	printf("custos reduzidos:\n");
-	%for i = 1:nonbasics
-		i, cReduced(i)
-	%endfor
+	printf("Índices e variáveis básicas:\n");
+	for i = 1:length(basics)
+		printf("%d %f\n", i, x(i));
+	endfor
 
-	printf("Entra na base: %d\n", l);
+	printf("\nValor da função objetivo: %.2f\n", objetivo);
 
-	%printf("Direção:\n");
-		%Fazer
+	printf("\nCustos reduzidos:\n");
+	for i = 1:length(nonbasics)
+		printf("%d %.2f\n", i, cReduced(i));
+	endfor
 
-	printf("Theta*: %f\n", theta_star);
-	printf("Sai da base: %d\n", j);	result octave syntax error
-	
+	printf("\nEntra na base: %d\n", dir);
 
-	%Imprimir os índices das variáveis que estavam na base e os respectivos valores das componentes do vetor de direção;
+	printf("\nDireção:\n");
+	for i = 1:iteracao
+		printf("%d %.2f\n", directions(i,1), directions(i,2));
+	endfor
+
+	printf("\nTheta*: %f\n", theta_star);
+	printf("\nSai da base: %d\n", l);	
 
 	%No caso em que x dado inicialmente é ótimo, tenho que imprimir informações simplificadas (theta estrela não existirá, por exemplo)
 
@@ -228,11 +231,11 @@ endfunction
 %Nessa parte pedir para o usuário entrar com x, A, b, c, m, n ou arrumar um jeito de ler de um arquivo
 %simplex(A,b,c,m,n,x)
 
-A = input("A = ")
-b = input("b = ")
+A = input(" ")
+b = input(" ")
 x = input("Solução inicial:\n")
-c = input("c = ")
-n = input("n = ")
-m = input("m = ")
+c = input("  ")
+n = input("  ")
+m = input("  ")
 
 [ind, v] = simplex(A,b,c,m,n,x);
