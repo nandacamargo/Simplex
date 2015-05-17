@@ -38,7 +38,7 @@ function [theta_star, l, ind_l] = findTheta(x, u, basics, len_b)
 	theta_star = min
 endfunction
 
-function [ind v] = simplex(A,c,m,n,x)
+function [ind v] = simplex(A,b,c,m,n,x)
 	
 	j = 1;
 	k = 1;
@@ -80,6 +80,8 @@ function [ind v] = simplex(A,c,m,n,x)
 	printf("\n--------------------------\n");
 	printf("Iterando: %d\n", iteracao);
 	printf("--------------------------\n\n");
+
+
 		%Aqui é feito o cálculo de p' = cb' * B⁻¹
 		for j = 1:len_b
 			pT(j) = 0;
@@ -97,14 +99,15 @@ function [ind v] = simplex(A,c,m,n,x)
 		for j = 1:length(nonbasics)
 			aux = 0;
 			for i = 1:m
-				aux += pT(i)* A(i,j);
+				aux += pT(i)* A(i,nonbasics(j));
 			endfor
-			cReduced(j) = c(j) - aux;
+
+			cReduced(j) = c(nonbasics(j)) - aux;
 			if (cReduced(j) >= 0)
 				cont +=1;
 			elseif(cReduced(j) < min_cost)
 				min_cost = cReduced;  %Isso é feito para pegar o custo reduzido o mais negativo possível
-				dir = j; 			  %direção j será a direção básica
+				dir = nonbasics(j);   %direção j será a direção básica
 			endif
 		endfor
 
@@ -143,7 +146,7 @@ function [ind v] = simplex(A,c,m,n,x)
 
 		if (cont == length(u)) %significa que nenhum índice é positivo		
 			theta_star = inf
-			printf("O custo é -infinito\n\n");
+			printf("O valor da função objetivo vai para -infinito\n\n");
 			found = 1;
 			ind = -1
 			v = dir
@@ -217,13 +220,13 @@ endfunction
 
 #######################################################################################################
 
-%Nessa parte pedir para o usuário entrar com x, A, b, c, m, n ou arrumar um jeito de ler de um arquivo
 %simplex(A,b,c,m,n,x)
 
 A = input(" ")
+b = input(" ")
 x = input("Solução inicial:\n")
 c = input("  ")
 n = input("  ")
 m = input("  ")
 
-[ind, v] = simplex(A,c,m,n,x);
+[ind, v] = simplex(A,b,c,m,n,x);
