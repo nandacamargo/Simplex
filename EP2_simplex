@@ -57,8 +57,6 @@ function [ind v] = simplex(A,b,c,m,n,x)
 	j -= 1;
 	k -= 1;
 
-	basics
-	nonbasics
 	len_b = length(basics);
 	
 	%Criação de B
@@ -68,8 +66,8 @@ function [ind v] = simplex(A,b,c,m,n,x)
 		endfor
 	endfor
 
-	%Nesse passo estou invertendo B 
-	inverseB = inv(B)
+	%Nesse passo ocorre a inversão de B 
+	inverseB = inv(B);
 	iteracao = 0;
 	found = 0;
 	dir = 1;
@@ -120,11 +118,12 @@ function [ind v] = simplex(A,b,c,m,n,x)
 				objetivo += c(i) * x(i);
 			endfor
 
-			printf("Solução ótima foi encontrada com custo: %.2f\n", objetivo);
+			printf("Solução ótima foi encontrada com custo: %.4f\n", objetivo);
 			printf("\n");
 
 			ind = 0
 			v = x
+			break;
 		endif	
 
 		%Calcula-se u = -dB = B⁻¹Aj		
@@ -195,24 +194,24 @@ function Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, 
 	
 	printf("Índices e variáveis básicas:\n");
 	for i = 1:length(basics)
-		printf("%d %.2f\n", i, x(i));
+		printf("%d %.4f\n", basics(i), x(basics(i)));
 	endfor
 
-	printf("\nValor da função objetivo: %.2f\n", objetivo);
+	printf("\nValor da função objetivo: %.4f\n", objetivo);
 
 	printf("\nCustos reduzidos:\n");
 	for i = 1:length(nonbasics)
-		printf("%d %.2f\n", i, cReduced(i));
+		printf("%d %.4f\n", nonbasics(i), cReduced(i));
 	endfor
 
 	printf("\nEntra na base: %d\n", dir);
 
 	printf("\nDireção:\n");
 	for i = 1:iteracao
-		printf("%d %.2f\n", directions(i,1), directions(i,2));
+		printf("%d %.4f\n", directions(i,1), directions(i,2));
 	endfor
 
-	printf("\nTheta*: %.2f\n", theta_star);
+	printf("\nTheta*: %.4f\n", theta_star);
 	printf("\nSai da base: %d\n", l);	
 
 endfunction
