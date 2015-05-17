@@ -55,7 +55,7 @@ function [ind v] = simplex(A,c,m,n,x)
 	endfor
 	
 	j -= 1;
-	k -=1;
+	k -= 1;
 
 	basics
 	nonbasics
@@ -69,7 +69,7 @@ function [ind v] = simplex(A,c,m,n,x)
 	endfor
 
 	%Nesse passo estou invertendo B 
-	inverseB = inv(B);
+	inverseB = inv(B)
 	iteracao = 0;
 	found = 0;
 	dir = 1;
@@ -77,7 +77,9 @@ function [ind v] = simplex(A,c,m,n,x)
 	while (!found)
 
 	iteracao += 1;
-	printf("Iterando: %d\n\n", iteracao);
+	printf("\n--------------------------\n");
+	printf("Iterando: %d\n", iteracao);
+	printf("--------------------------\n\n");
 		%Aqui é feito o cálculo de p' = cb' * B⁻¹
 		for j = 1:len_b
 			pT(j) = 0;
@@ -86,9 +88,9 @@ function [ind v] = simplex(A,c,m,n,x)
 			endfor
 		endfor
 
-		%Checo as variáveis j que não estão na base
+		%É checado se as variáveis j que não estão na base
 		%Se todas são não-negativas, a solução viável básica atual é ótima e o algoritmo pára.	
-		%Caso contrário escolho um j cujo custo cj < 0
+		%Caso contrário escolhe-se um j cujo custo cj < 0
 
 		cont = 0;
 		min_cost = inf;
@@ -106,8 +108,7 @@ function [ind v] = simplex(A,c,m,n,x)
 			endif
 		endfor
 
-		cReduced
-		if (cont == len_b)
+		if (cont == length(cReduced))
 			%algoritmo pára
 			found = 1;
 			%Função objetivo
@@ -119,8 +120,8 @@ function [ind v] = simplex(A,c,m,n,x)
 			printf("Solução ótima foi encontrada com custo: %.2f\n", objetivo);
 			printf("\n");
 
-			ind = 0;
-			v = x;
+			ind = 0
+			v = x
 		endif	
 
 		%Calcula-se u = -dB = B⁻¹Aj		
@@ -132,7 +133,6 @@ function [ind v] = simplex(A,c,m,n,x)
 			endfor
 		endfor
 
-		u
 		cont = 0;
 	    for i = 1:len_b
 			if(u(i) <= 0)
@@ -141,16 +141,16 @@ function [ind v] = simplex(A,c,m,n,x)
 		endfor	
 
 
-		if (cont == len_b) %significa que nenhum índice é positivo		
+		if (cont == length(u)) %significa que nenhum índice é positivo		
 			theta_star = inf
-			printf("O custo é -infinito\n");
-			%found = 1;
-			ind = -1;
-			v = dir;
+			printf("O custo é -infinito\n\n");
+			found = 1;
+			ind = -1
+			v = dir
+			break;
 		endif
 
 		%Encontrando theta estrela e a posição l
-		%Separar esse trecho de código e fazer uma função
 		[theta_star, l, ind_l] = findTheta(x, u, basics, len_b);
 		
 		directions(iteracao,1) = l; 
@@ -169,7 +169,7 @@ function [ind v] = simplex(A,c,m,n,x)
 		x(dir) = theta_star;
 		basics(ind_l) = dir;
 
-		inverseB = updateB(inverseB, u, len_b, ind_l)
+		inverseB = updateB(inverseB, u, len_b, ind_l);
 
 		%Função objetivo
 		objetivo = 0;
@@ -211,8 +211,6 @@ function Imprime_dados(n, basics, x, objetivo, nonbasics, cReduced, directions, 
 
 	printf("\nTheta*: %.2f\n", theta_star);
 	printf("\nSai da base: %d\n", l);	
-
-	%No caso em que x dado inicialmente é ótimo, tenho que imprimir informações simplificadas (theta estrela não existirá, por exemplo)
 
 endfunction
 
